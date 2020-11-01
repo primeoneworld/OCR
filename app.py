@@ -3,12 +3,14 @@ import os
 from telegram import ParseMode
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler
 
-
 def start(update, context):
+    update.message.reply_text("Send an image")
+
+def ocr_exec(update, context):
     file_id = update.message.photo[-1].file_id
     newFile = context.bot.get_file(file_id)
     newFile.download("test.jpg")
-    update.message.reply_text("Got Image")
+    update.message.reply_text("Processing...")
     filename = "test.jpg"
     configuration = cloudmersive_ocr_api_client.Configuration()
     api = os.environ.get("API_KEY")
@@ -26,8 +28,9 @@ def main():
     token = os.environ.get("TOKEN")
     updater = Updater(token, use_context=True)
     dp = updater.dispatcher
-    dp.add_handler(MessageHandler(Filters.photo, start))
+    dp.add_handler(MessageHandler(Filters.photo, ocr_exec))
     dp.add_handler(CommandHandler("help", help))
+    dp.add_handler(CommandHandler("start", start))
     updater.start_polling()
     updater.idle()
 
